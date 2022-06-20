@@ -15,4 +15,37 @@ internal static class ExerciseController
             options.UseSqlite($"Data Source = {path}");
         }
     }
+
+    internal static void Create(Exercise log)
+    {
+        using var db = new ExerciseContext();
+        db.Database.EnsureCreated();
+        db.Add(log);
+        db.SaveChanges();
+    }
+
+    internal static List<Exercise> Read()
+    {
+        using var db = new ExerciseContext();
+        db.Database.EnsureCreated();
+        return db.Exercises!.ToList();
+    }
+
+    internal static void Update(Exercise log)
+    {
+        using var db = new ExerciseContext();
+        db.Database.EnsureCreated();
+        var exercise = db.Exercises!.Where(e => e.Id == log.Id).First();
+        exercise = log;
+        db.SaveChanges();
+    }
+
+    internal static void Delete(int id)
+    {
+        using var db = new ExerciseContext();
+        db.Database.EnsureCreated();
+        var exercise = db.Exercises!.Where(e => e.Id == id).First();
+        db.Remove(exercise);
+        db.SaveChanges();
+    }
 }
