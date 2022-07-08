@@ -2,37 +2,36 @@
 
 internal class WorkoutController
 {
-    private IWorkoutRepository _workoutRepository;
+    public IWorkoutRepository? _workoutRepository;
 
-    public WorkoutController()
+    public void SetRepository(bool isCardioWorkout)
     {
-        _workoutRepository = new WorkoutRepository(new WorkoutContext());
+        _workoutRepository = isCardioWorkout ?
+            new CardioWorkoutRepository()
+            : new WeightsWorkoutRepository();
     }
 
     public void Create(Workout log)
     {
-        _workoutRepository.InsertWorkout(log);
-        _workoutRepository.Save();
+        _workoutRepository!.InsertWorkout(log);
         Console.WriteLine("Successfully logged your workout!");
     }
 
-    public List<Workout> Read() => _workoutRepository.GetWorkouts();
+    public List<Workout> Read() => _workoutRepository!.GetWorkouts();
 
-    public Workout ReadUsingId(int id) => _workoutRepository.GetWorkoutById(id);
+    public Workout ReadUsingId(int id) => _workoutRepository!.GetWorkoutByRelativeId(id);
 
     public void Update(Workout log)
     {
-        _workoutRepository.UpdateWorkout(log);
-        _workoutRepository.Save();
+        _workoutRepository!.UpdateWorkout(log);
         Console.WriteLine("Successfully updated your workout!");
     }
 
     public void Delete(int id)
     {
-        _workoutRepository.DeleteWorkout(id);
-        _workoutRepository.Save();
+        _workoutRepository!.DeleteWorkout(id);
         Console.WriteLine("Successfully removed your workout!");
     }
 
-    protected void Dispose() => _workoutRepository.Dispose();
+    protected void Dispose() => _workoutRepository!.Dispose();
 }

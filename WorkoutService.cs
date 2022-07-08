@@ -2,11 +2,18 @@
 
 internal class WorkoutService
 {
-    WorkoutController controller = new WorkoutController();
+    private static WorkoutController _controller = new();
 
-    internal void Add()
+    internal static void Add(string command)
     {
         var log = new Workout();
+        var workoutType = command.RemoveKeyword("add");
+
+        if (workoutType is not "cardio" and not "weights")
+        {
+            Console.WriteLine("Please select either a cardio or a weights workout.");
+            return;
+        }
 
         foreach (var property in log.GetType().GetProperties())
         {
@@ -34,25 +41,36 @@ internal class WorkoutService
             }
 
             var newValue = SetProperty(property, userInput);
-            if (newValue == null) return;
+            if (newValue is null) return;
             property.SetValue(log, newValue);
         }
 
-        controller.Create(log);
+        _controller.SetRepository(workoutType is "cardio");
+        _controller.Create(log);
     }
 
-    internal void Show()
+    internal static void Show(string command)
     {
-        var logs = controller.Read().ConvertAll(log => log.GetDeepClone());
+        var workoutType = command.RemoveKeyword("show", Helpers.ShowFormatError);
+
+        if (workoutType is not "cardio" and not "weights")
+        {
+            Console.WriteLine("Please select either a cardio or a weights workout.");
+            return;
+        }
+
+        _controller.SetRepository(workoutType is "cardio");
+
+        var logs = _controller.Read().ConvertAll(log => log.GetDeepClone());
         
         for (int i = 0; i < logs.Count; i++) logs[i].Id = i + 1;
 
         Helpers.DisplayTable(logs, Helpers.NoLogsMessage);
     }
 
-    internal void Update(int relativeId)
+    internal static void Update(int relativeId)
     {
-        var workouts = controller.Read();
+        var workouts = _controller!.Read();
 
         if (relativeId == 0)
         {
@@ -66,7 +84,7 @@ internal class WorkoutService
             return;
         }
 
-        var log = controller.ReadUsingId(workouts[relativeId - 1].Id);
+        var log = _controller!.ReadUsingId(workouts[relativeId - 1].Id);
 
         Console.WriteLine("Leave the field empty if you don't want to change the value.");
 
@@ -95,13 +113,30 @@ internal class WorkoutService
             if (newValue == null) return;
             property.SetValue(log, newValue);
 
-            controller.Update(ReplaceEmptyFields(log));
+            _controller!.Update(ReplaceEmptyFields(log));
         }
     }
 
-    internal void Remove(int relativeId)
+    internal static void Remove(int relativeId)
     {
-        var workouts = controller.Read();
+        string? workoutType;
+
+        Console.WriteLine("Do you want to remove a cardio or a weights workout?");
+
+        while (true)
+        {
+            workoutType = Console.ReadLine()?.Trim();
+            bool isWorkoutTypeValid = workoutType is "cardio" or "weights";
+
+            if (isWorkoutTypeValid) break;
+
+            else Console.WriteLine("Please select either a cardio or a weights workout.");
+
+        }
+
+        _controller.SetRepository(workoutType is "cardio");
+
+        var workouts = _controller!.Read();
 
         if (workouts.Count <= relativeId - 1)
         {
@@ -109,14 +144,14 @@ internal class WorkoutService
             return;
         }
 
-        int absoluteId = relativeId == 0 ? workouts.Last().Id : workouts[relativeId - 1].Id;
+        int absoluteId = workouts[relativeId - 1].Id;
         
-        controller.Delete(absoluteId);
+        _controller!.Delete(absoluteId);
     }
 
-    internal Workout ReplaceEmptyFields(Workout log)
+    internal static Workout ReplaceEmptyFields(Workout log)
     {
-        var workout = controller.ReadUsingId(log.Id);
+        var workout = _controller!.ReadUsingId(log.Id);
 
         try
         {
@@ -149,7 +184,7 @@ internal class WorkoutService
 
         catch (FormatException)
         {
-            Console.WriteLine("The value you entered is invalid for " + property.Name);
+            Console.WriteLine($"The value you entered is invalid for {property.Name}.");
 
             if (property.Name is "Start" or "End")
                 Console.WriteLine(Helpers.DateTimeFormat);
