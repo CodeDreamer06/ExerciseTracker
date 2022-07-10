@@ -3,12 +3,13 @@
 internal class WorkoutController
 {
     public IWorkoutRepository? _workoutRepository;
+    public static CardioWorkoutRepository CardioRepository = new();
+    public static WeightsWorkoutRepository WeightsRepository = new();
 
     public void SetRepository(bool isCardioWorkout)
     {
-        _workoutRepository = isCardioWorkout ?
-            new CardioWorkoutRepository()
-            : new WeightsWorkoutRepository();
+        _workoutRepository = isCardioWorkout ? 
+            CardioRepository : WeightsRepository;
     }
 
     public void Create(Workout log)
@@ -20,6 +21,8 @@ internal class WorkoutController
     public List<Workout> Read() => _workoutRepository!.GetWorkouts();
 
     public Workout ReadUsingId(int id) => _workoutRepository!.GetWorkoutByRelativeId(id);
+
+    public int GetNumberOfWorkouts() => _workoutRepository!.GetNumberOfWorkouts();
 
     public void Update(Workout log)
     {

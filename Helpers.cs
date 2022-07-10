@@ -12,7 +12,7 @@ internal static class Helpers
 * show [cardio or weights]: display existing logs
 * add [cardio or weights]: create an exercise log
 * update [id]: change an existing log
-* remove [id]: delete the last recent log
+* remove [id]: delete a log
 Use help to display this message again!
 ";
 
@@ -28,9 +28,9 @@ Examples: 08/18/2022 07:22:16 or Sat, 18 Aug 2022 07:22:16";
 
     public static string SqlRead = @"SELECT Id, datetime(start), datetime(end), Duration, Comments FROM Weights;";
 
-    public static string SqlUpdate = "update Weights set {0} where id = {1}";
+    public static string SqlUpdate = "UPDATE Weights SET {0} where id = {1}";
 
-    public static string SqlDelete = "delete from Weights where id = {0}";
+    public static string SqlDelete = "DELETE FROM Weights WHERE id = {0}";
 
     private static readonly Dictionary<HeaderCharMapPositions, char> HeaderCharacterMap = new()
     {

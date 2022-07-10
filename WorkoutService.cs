@@ -70,7 +70,7 @@ internal class WorkoutService
 
     internal static void Update(int relativeId)
     {
-        var workouts = _controller!.Read();
+        SetRepositoryFromInput("update");
 
         if (relativeId == 0)
         {
@@ -78,16 +78,16 @@ internal class WorkoutService
             return;
         }
 
-        if (workouts.Count <= relativeId - 1)
+        if (_controller.GetNumberOfWorkouts() <= relativeId - 1)
         {
             Console.WriteLine("The workout you are looking for no longer exists.");
             return;
         }
 
-        var log = _controller!.ReadUsingId(workouts[relativeId - 1].Id);
+        var log = _controller!.ReadUsingId(relativeId);
 
         Console.WriteLine("Leave the field empty if you don't want to change the value.");
-
+        
         foreach (var property in log.GetType().GetProperties())
         {
             if (property.Name == "Id") continue;
@@ -110,8 +110,10 @@ internal class WorkoutService
             if (string.IsNullOrWhiteSpace(userInput)) continue;
 
             var newValue = SetProperty(property, userInput);
-            if (newValue == null) return;
+            if (newValue is null) return;
             property.SetValue(log, newValue);
+
+            log.Id = relativeId;
 
             _controller!.Update(ReplaceEmptyFields(log));
         }
@@ -119,9 +121,25 @@ internal class WorkoutService
 
     internal static void Remove(int relativeId)
     {
+        SetRepositoryFromInput("remove");
+        var workouts = _controller!.Read();
+
+        if (workouts.Count <= relativeId - 1)
+        {
+            Console.WriteLine("The workout you are looking for no longer exists.");
+            return;
+        }
+
+        int absoluteId = workouts[relativeId - 1].Id;
+
+        _controller!.Delete(absoluteId);
+    }
+
+    private static void SetRepositoryFromInput(string keyword)
+    {
         string? workoutType;
 
-        Console.WriteLine("Do you want to remove a cardio or a weights workout?");
+        Console.WriteLine($"Do you want to {keyword} a cardio or a weights workout?");
 
         while (true)
         {
@@ -135,23 +153,12 @@ internal class WorkoutService
         }
 
         _controller.SetRepository(workoutType is "cardio");
-
-        var workouts = _controller!.Read();
-
-        if (workouts.Count <= relativeId - 1)
-        {
-            Console.WriteLine("The workout you are looking for no longer exists.");
-            return;
-        }
-
-        int absoluteId = workouts[relativeId - 1].Id;
-        
-        _controller!.Delete(absoluteId);
     }
 
     internal static Workout ReplaceEmptyFields(Workout log)
     {
         var workout = _controller!.ReadUsingId(log.Id);
+        int id = workout.Id;
 
         try
         {
@@ -169,6 +176,7 @@ internal class WorkoutService
             return new Workout();
         }
 
+        log.Id = id;
         return log;
     }
 
