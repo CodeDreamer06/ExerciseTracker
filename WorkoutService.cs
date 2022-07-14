@@ -1,8 +1,8 @@
 ﻿namespace ExerciseTracker;
 
-internal class WorkoutService
+internal static class WorkoutService
 {
-    private static WorkoutController _controller = new();
+    private static readonly WorkoutController _controller = new();
 
     internal static void Add(string command)
     {
@@ -72,7 +72,7 @@ internal class WorkoutService
     {
         SetRepositoryFromInput("update");
 
-        if (relativeId == 0)
+        if (relativeId is 0)
         {
             Console.WriteLine("Please enter a valid id from the table.");
             return;
@@ -90,9 +90,9 @@ internal class WorkoutService
         
         foreach (var property in log.GetType().GetProperties())
         {
-            if (property.Name == "Id") continue;
+            if (property.Name is "Id") continue;
 
-            if (property.Name == "Duration")
+            if (property.Name is "Duration")
             {
                 if (log.IsTimeInvalid())
                 {

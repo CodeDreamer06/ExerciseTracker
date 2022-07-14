@@ -2,9 +2,8 @@
 
 class Program
 {
-    static void Main(string[] args)
+    static void Main()
     {
-        var service = new WorkoutService();
         Console.WriteLine(Helpers.MainMessage);
 
         while (true)
@@ -18,9 +17,11 @@ class Program
 
             else if (string.IsNullOrWhiteSpace(command)) continue;
 
-            else if (command.StartsWith("add")) WorkoutService.Add(command);
+            else if (command.StartsWith("add")) 
+                WorkoutService.Add(command);
             
-            else if (command.StartsWith("show")) WorkoutService.Show(command);
+            else if (command.StartsWith("show")) 
+                WorkoutService.Show(command);
 
             else if (command.StartsWith("update"))
                 WorkoutService.Update(rawCommand.GetNumber("update"));
