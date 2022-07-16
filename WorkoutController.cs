@@ -1,40 +1,73 @@
 ﻿namespace ExerciseTracker;
 
-internal class WorkoutController
+public enum RepositoryType { Cardio, Weights, Flexibility };
+
+partial class WorkoutController
 {
-    public IWorkoutRepository? _workoutRepository;
-    public static CardioWorkoutRepository CardioRepository = new();
-    public static WeightsWorkoutRepository WeightsRepository = new();
-
-    public void SetRepository(bool isCardioWorkout)
+    internal void Add()
     {
-        _workoutRepository = isCardioWorkout ? 
-            CardioRepository : WeightsRepository;
-    }
+        SetRepositoryFromInput(keyword: "add");
 
-    public void Create(Workout log)
-    {
-        _workoutRepository!.InsertWorkout(log);
+        var log = GetWorkoutFromUser();
+        if (log is NullWorkout) return;
+
+        WorkoutRepository!.Create(log);
         Console.WriteLine("Successfully logged your workout!");
     }
 
-    public List<Workout> Read() => _workoutRepository!.GetWorkouts();
-
-    public Workout ReadUsingId(int id) => _workoutRepository!.GetWorkoutByRelativeId(id);
-
-    public int GetNumberOfWorkouts() => _workoutRepository!.GetNumberOfWorkouts();
-
-    public void Update(Workout log)
+    internal void Show()
     {
-        _workoutRepository!.UpdateWorkout(log);
+        SetRepositoryFromInput();
+
+        var logs = WorkoutRepository!.Read().ConvertAll(log => log.GetDeepClone());
+
+        for (int i = 0; i < logs.Count; i++) logs[i].Id = i + 1;
+
+        Helpers.DisplayTable(logs, Helpers.NoLogsMessage);
+    }
+
+    internal void Update(int relativeId)
+    {
+        if (relativeId is 0)
+        {
+            Console.WriteLine("Please enter a valid id from the table.");
+            return;
+        }
+
+        SetRepositoryFromInput(keyword: "update");
+
+        if (WorkoutRepository!.GetCount() <= relativeId - 1)
+        {
+            Console.WriteLine("The workout you are looking for no longer exists.");
+            return;
+        }
+
+        Console.WriteLine("Leave the field empty if you don't want to change the value.");
+
+        var log = GetWorkoutFromUser(ignoreEmptyFields: true);
+        if (log is NullWorkout) return;
+
+        log.Id = relativeId;
+
+        WorkoutRepository!.Update(ReplaceEmptyFields(log));
         Console.WriteLine("Successfully updated your workout!");
     }
 
-    public void Delete(int id)
+    internal void Remove(int relativeId)
     {
-        _workoutRepository!.DeleteWorkout(id);
+        SetRepositoryFromInput(keyword: "remove");
+
+        var workouts = WorkoutRepository!.Read();
+
+        if (workouts.Count <= relativeId - 1)
+        {
+            Console.WriteLine("The workout you are looking for doesn't exist.");
+            return;
+        }
+
+        int absoluteId = workouts[relativeId - 1].Id;
+
+        WorkoutRepository!.Delete(absoluteId);
         Console.WriteLine("Successfully removed your workout!");
     }
-
-    protected void Dispose() => _workoutRepository!.Dispose();
 }

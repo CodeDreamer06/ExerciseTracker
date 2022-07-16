@@ -9,17 +9,14 @@ internal static class Helpers
 # Exercise Tracker
   A simple exercise logger for you to measure your progress!
 * exit or 0: stop the program
-* show [cardio or weights]: display existing logs
-* add [cardio or weights]: create an exercise log
+* show: display existing logs
+* add: create an exercise log
 * update [id]: change an existing log
 * remove [id]: delete a log
 Use help to display this message again!
 ";
 
     public static string NoLogsMessage = "There are no logs to display. Type 'help' to learn how to log a new workout.";
-
-    public static string ShowFormatError = @"Show commands should be in this format: 'show [cardio or weights]'.
-For example: 'show cardio' displays all your cardio workouts";
 
     public static string DateTimeFormat = @"The recommended forms for dateTime are 'MM/DD/YYYY HH/MM/SS' and 'WeekDay, day monthName year HH:MM:SS'.
 Examples: 08/18/2022 07:22:16 or Sat, 18 Aug 2022 07:22:16";

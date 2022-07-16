@@ -4,6 +4,7 @@ class Program
 {
     static void Main()
     {
+        var service = new WorkoutController();
         Console.WriteLine(Helpers.MainMessage);
 
         while (true)
@@ -13,21 +14,22 @@ class Program
 
             if (command is "exit" or "0") break;
 
-            else if (command is "help") Console.WriteLine(Helpers.MainMessage);
+            else if (command is "help") 
+                Console.WriteLine(Helpers.MainMessage);
 
             else if (string.IsNullOrWhiteSpace(command)) continue;
 
-            else if (command.StartsWith("add")) 
-                WorkoutService.Add(command);
+            else if (command is "add") 
+                service.Add();
             
-            else if (command.StartsWith("show")) 
-                WorkoutService.Show(command);
+            else if (command is "show") 
+                service.Show();
 
             else if (command.StartsWith("update"))
-                WorkoutService.Update(rawCommand.GetNumber("update"));
+                service.Update(rawCommand.GetNumber("update"));
 
             else if (command.StartsWith("remove"))
-                WorkoutService.Remove(rawCommand.GetNumber("remove"));
+                service.Remove(rawCommand.GetNumber("remove"));
 
             else
             {
